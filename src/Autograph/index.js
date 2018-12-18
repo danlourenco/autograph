@@ -7,6 +7,24 @@ import {
 } from '../utils';
 
 
+const importSVG = (sourceSVG, targetCanvas) => {
+  // https://developer.mozilla.org/en/XMLSerializer
+  console.log(sourceSVG);
+  // var svg_xml = (new XMLSerializer()).serializeToString(sourceSVG);
+  var ctx = targetCanvas.getContext('2d');
+
+  // this is just a JavaScript (HTML) image
+  var img = new Image();
+  // http://en.wikipedia.org/wiki/SVG#Native_support
+  // https://developer.mozilla.org/en/DOM/window.btoa
+  img.src = sourceSVG;
+
+  img.onload = function() {
+      // after this, Canvas’ origin-clean is DIRTY
+      ctx.drawImage(img, targetCanvas.width / 2 - img.width / 2, targetCanvas.height / 2 - img.height / 2);
+  }
+}
+
 class Autograph extends Component {
 
   state = {
@@ -18,11 +36,15 @@ class Autograph extends Component {
   componentDidMount() {
     let canvas = this.refs.canvas;
     let context = this.refs.canvas.getContext('2d');
-    canvas.width = 300;
-    canvas.height = 400;
+    canvas.width = this.props.width;
+    canvas.height = this.props.height;
+
     context.strokeStyle = 'black';
     context.lineCap = 'round';
     context.lineJoin = 'round';
+
+    importSVG(this.props.backgroundImg, canvas);
+
     canvas.addEventListener('touchstart',this.handlePointerDown, { passive: false });
     canvas.addEventListener('touchmove',this.handlePointerMove, { passive: false });
     canvas.addEventListener('touchend', this.handlePointerUp, { passive: false });
@@ -70,7 +92,7 @@ class Autograph extends Component {
       }
     }
 
-    let newLineWidth = (Math.log(pressure + 1) * 30 * 0.4 + lineWidth * 0.6);
+    let newLineWidth = Math.min((Math.log(pressure + 1) * 10 * 0.4 + lineWidth * 0.6), 4);
     console.log(newLineWidth);
     this.setState({
       points: [
@@ -127,14 +149,12 @@ class Autograph extends Component {
           ref='canvas'
           className={ styles.container }
           onMouseDown={ this.handlePointerDown }
-          // onTouchStart={ this.handlePointerDown }
           onMouseMove={ this.handlePointerMove }
-          // onTouchMove={ this.handlePointerMove }
           onMouseUp={ this.handlePointerUp }
-          // onTouchEnd={ this.handlePointerUp }
         />
-      </div>
+        <div>Linewidth: { this.state.lineWidth } </div>
 
+      </div>
     )
   }
 }
