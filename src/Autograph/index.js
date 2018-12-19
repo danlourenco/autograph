@@ -5,6 +5,7 @@ import {
   isPressureSensitiveDevice,
   pressureDetected
 } from '../utils';
+import Debug from '../Debug';
 
 
 const importSVG = (sourceSVG, targetCanvas) => {
@@ -99,6 +100,7 @@ class Autograph extends Component {
         ...this.state.points,
         {x, y, lineWidth: newLineWidth}
       ],
+      pressure,
       lineWidth: newLineWidth
     }, () => {
       if (this.state.points.length >= 3) {
@@ -152,8 +154,7 @@ class Autograph extends Component {
           onMouseMove={ this.handlePointerMove }
           onMouseUp={ this.handlePointerUp }
         />
-        <div>Linewidth: { this.state.lineWidth } </div>
-
+        <Debug lineWidth={ this.state.lineWidth} pressure={ this.state.pressure } />
       </div>
     )
   }
